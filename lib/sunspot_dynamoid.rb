@@ -1,5 +1,2 @@
-require "sunspot_dynamoid/version"
-
-module SunspotDynamoid
-  # Your code goes here...
-end
+require "sunspot/version"
+require "sunspot/dynamoid"
