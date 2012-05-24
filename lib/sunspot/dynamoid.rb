@@ -27,24 +27,31 @@ module Sunspot
 
     class InstanceAdapter < Sunspot::Adapters::InstanceAdapter
       def id
-        @instance.id
+        @instance.hash_key
+      end
+
+      def is_range?
+        !(@instance.range_key.nil?)
+      end
+
+      def range_key
+        @instance.range_key
+      end
+
+      def range_value
+        @instance.range_value
       end
     end
 
     class DataAccessor < Sunspot::Adapters::DataAccessor
       def load(id)
-        criteria(id).first
+        @clazz.find(id, options)
       end
 
       def load_all(ids)
-        criteria(ids)
+        Array(@clazz.find(ids))
       end
 
-      private
-
-      def criteria(id)
-        @clazz.criteria.id(id)
-      end
     end
   end
 end
