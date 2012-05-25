@@ -57,6 +57,10 @@ module Sunspot
       end
 
       def load_all(ids)
+        key_ids = Keygen.process(ids)
+        if @clazz.range_key.nil?
+          key_ids.flatten!.compact!
+        end
         Array(@clazz.find_all(Keygen.process(ids)))
       end
 
