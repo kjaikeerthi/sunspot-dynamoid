@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
     'Rakefile',
     'lib/sunspot_dynamoid.rb',
     'lib/sunspot/dynamoid.rb',
+    'lib/sunspot/keygen.rb',
     'lib/sunspot/version.rb',
     'sunspot_dynamoid.gemspec'
   ]

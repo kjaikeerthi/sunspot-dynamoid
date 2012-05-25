@@ -1,6 +1,7 @@
 require 'sunspot'
 require 'dynamoid'
 require 'sunspot/rails'
+require 'sunspot/keygen'
 
 # == Examples:
 #
@@ -27,29 +28,36 @@ module Sunspot
 
     class InstanceAdapter < Sunspot::Adapters::InstanceAdapter
       def id
-        @instance.hash_key
+        range_value = nil
+        if is_range?
+          range_value = @instance.send :dump_field, @instance.read_attribute(@instance.range_key), @instance.class.attributes[@instance.range_key]
+        end
+        generate_key(range_value)
       end
 
       def is_range?
         !(@instance.range_key.nil?)
       end
 
-      def range_key
-        @instance.range_key
+      def generate_key(range_value)
+        range_value_type = range_value.class.to_s
+        "hk#{@instance.hash_key.to_s.size} #{@instance.hash_key.class.to_s.length}#{@instance.hash_key.class.to_s} rk#{range_value.to_s.size} #{range_value_type.length}#{range_value_type} #{@instance.hash_key} #{range_value}"
       end
 
-      def range_value
-        @instance.range_value
-      end
     end
 
     class DataAccessor < Sunspot::Adapters::DataAccessor
       def load(id)
-        @clazz.find(id, options)
+        k = Keygen.new(id)
+        if k.range_key.nil?
+          @clazz.find(k.hash_key)
+        else
+          @clazz.find_by_id(k.hash_key, {range_key: k.range_key})
+        end
       end
 
       def load_all(ids)
-        Array(@clazz.find(ids))
+        Array(@clazz.find_all(Keygen.process(ids)))
       end
 
     end
